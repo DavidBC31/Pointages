@@ -1,26 +1,34 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Next 16 : ex-"middleware". Contrôle optimiste (présence du cookie) ;
-// la vérification réelle (signature HMAC + domaine) se fait côté page/route
+// Next 16 : ex-"middleware". Contrôle optimiste (présence du cookie bc_session) ;
+// la vérification réelle (signature HMAC + apps[]) se fait côté page/route
 // via getSession() — cf. src/lib/auth.ts.
+// Si le cookie est absent, l'utilisateur est redirigé vers le hub SSO.
 
-const SESSION_COOKIE = "justif_session"; // doit matcher src/lib/auth.ts
-// Accessibles sans session : SSO, et les endpoints backend protégés par CRON_SECRET.
+const BC_SESSION = "bc_session";
 const OPEN = ["/api/auth", "/api/cron", "/api/justificatifs"];
+const HUB_URL = process.env.HUB_URL ?? "https://hub.bleucitron.app";
+
+function publicOrigin(req: NextRequest): string {
+  const fwd = (req.headers.get("x-forwarded-host") ?? "").split(",")[0].trim();
+  const raw = (fwd || req.headers.get("host") || "").toLowerCase();
+  const proto = req.headers.get("x-forwarded-proto") ?? req.nextUrl.protocol.replace(":", "");
+  return raw ? `${proto}://${raw}` : req.nextUrl.origin;
+}
 
 export function proxy(req: NextRequest) {
-  // SSO actif uniquement si configuré. En dev non configuré → tout ouvert.
-  if (!process.env.AUTH_SECRET) return NextResponse.next();
+  if (!process.env.SSO_SECRET) return NextResponse.next();
 
   const { pathname } = req.nextUrl;
   if (OPEN.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
-  if (!req.cookies.has(SESSION_COOKIE)) {
+  if (!req.cookies.has(BC_SESSION)) {
     if (pathname.startsWith("/api")) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/api/auth/google", req.url));
+    const from = encodeURIComponent(`${publicOrigin(req)}${pathname}`);
+    return NextResponse.redirect(`${HUB_URL}?from=${from}`);
   }
   return NextResponse.next();
 }
