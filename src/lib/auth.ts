@@ -26,6 +26,21 @@ export function isConfigured(): boolean {
   return Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET && process.env.AUTH_SECRET);
 }
 
+/**
+ * Origine publique réelle de la requête. Derrière Cloudflare Tunnel, le serveur
+ * écoute sur localhost:3004 et `nextUrl.origin` vaudrait `https://localhost:3004`,
+ * ce qui casse le redirect_uri Google (redirect_uri_mismatch). On reconstruit
+ * l'origine à partir des en-têtes posés par le proxy (x-forwarded-* / Host).
+ */
+export function publicOrigin(req: { headers: Headers; nextUrl: URL }): string {
+  const host =
+    req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+  if (!host) return req.nextUrl.origin;
+  const proto =
+    req.headers.get("x-forwarded-proto") ?? req.nextUrl.protocol.replace(":", "");
+  return `${proto}://${host}`;
+}
+
 export function oauthClient(redirectUri: string): OAuth2Client {
   return new OAuth2Client(
     process.env.AUTH_GOOGLE_ID,
