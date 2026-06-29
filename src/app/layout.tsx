@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Pointages — Bleu Citron",
-  description: "Suivi et relances des points de vente",
+  description: "Relances points de vente · Justificatifs paie · Absences Lucca",
 };
 
 export default function RootLayout({
