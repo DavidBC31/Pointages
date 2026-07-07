@@ -4,7 +4,12 @@
       "Bash(brew install *)",
       "mcp__1d0e6ec6-dcf5-49af-8783-29522ddaa8ff__read_file_content",
       "mcp__1d0e6ec6-dcf5-49af-8783-29522ddaa8ff__search_files",
-      "WebFetch(domain:api.pims.io)"
+      "WebFetch(domain:api.pims.io)",
+      "Bash(claude --resume)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(claude --list-sessions)",
+      "Bash(claude -p --resume pointages)",
+      "Bash(node *)"
     ]
   }
 }

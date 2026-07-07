@@ -6,9 +6,9 @@ import type { Dataset, Entry } from "./types";
 import { normalizeTabs } from "./normalize";
 
 const TABS = {
-  relances: "RELANCES  PIMS A SAISIR", // (2 espaces, tel quel dans le fichier)
+  relances: "2 - RELANCES  PIMS A SAISIR",
   autonomes: "AUTONOMES  PIMS A SAISIR",
-  billetsTiers: "BILLETS TIERS",
+  billetsTiers: "1 - BILLETS TIERS",
 };
 
 function loadKey() {

@@ -55,14 +55,15 @@ function parseGrouped(rows: Row[], source: Entry["source"]): Entry[] {
     const manif = cell(r, 0), ville = cell(r, 1);
     if (txt(manif) && !txt(ville)) { artist = txt(manif); continue; }
     if (r.every((c) => c === null || c === undefined || c === "") || !txt(ville)) continue;
-    const { action, cadence, raison } = classify(cell(r, 6), cell(r, 7));
+    // F=5 COMMENTAIRE, G=6 RELANCE, H=7 DERNIER RECU, I=8 LIEN SEANCE PIMS
+    const { action, cadence, raison } = classify(cell(r, 5), cell(r, 6));
     out.push({
       id: 0, source, artiste: artist || txt(manif),
       ville: txt(ville), salle: txt(cell(r, 2)),
       date_concert: asIso(cell(r, 3)), mail: txt(cell(r, 4)),
-      commentaire: txt(cell(r, 6)),
-      relance_raw: txt(cell(r, 7)) || asIso(cell(r, 7)) || "",
-      dernier_recu: asIso(cell(r, 8)),
+      commentaire: txt(cell(r, 5)),
+      relance_raw: txt(cell(r, 6)),
+      dernier_recu: asIso(cell(r, 7)),
       identifiant: txt(cell(r, 10)), mdp: txt(cell(r, 11)),
       action, cadence, raison_skip: raison, billet_tiers: false, spectacles: "",
     });
@@ -76,13 +77,14 @@ function parseBilletsTiers(rows: Row[]): Entry[] {
     const nom = cell(r, 0);
     if (!txt(nom)) continue;
     if (txt(nom).toUpperCase().startsWith("ARCHIVE")) break;
-    const { action, cadence, raison } = classify(cell(r, 5), cell(r, 3));
+    // D=3 INFO (cadence), E=4 RELANCE LE ("NE PAS RELANCER" ou date), F=5 REÇU LE
+    const { action, cadence, raison } = classify(cell(r, 3), cell(r, 4));
     out.push({
       id: 0, source: "BILLETS TIERS", artiste: txt(nom),
       ville: "", salle: "", date_concert: null,
-      mail: txt(cell(r, 1)), commentaire: txt(cell(r, 5)),
-      relance_raw: txt(cell(r, 3)), dernier_recu: asIso(cell(r, 4)),
-      identifiant: txt(cell(r, 6)), mdp: txt(cell(r, 7)),
+      mail: txt(cell(r, 1)), commentaire: txt(cell(r, 3)),
+      relance_raw: txt(cell(r, 4)), dernier_recu: asIso(cell(r, 5)),
+      identifiant: "", mdp: "",
       action, cadence, raison_skip: raison, billet_tiers: true,
       spectacles: txt(cell(r, 2)),
     });
