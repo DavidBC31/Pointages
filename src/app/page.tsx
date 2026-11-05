@@ -32,7 +32,12 @@ export default async function Home() {
           <span className="text-lg">🍋</span>
           <span className="text-[15px] font-semibold tracking-tight">Pointages</span>
         </div>
-        <AccessChip ok={access.ok} email={access.email} />
+        <div className="flex items-center gap-4">
+          <a href="/receptions" className="text-[13px] font-medium text-apple-secondary hover:text-apple-blue">
+            Réceptions →
+          </a>
+          <AccessChip ok={access.ok} email={access.email} />
+        </div>
       </nav>
 
       <main className="fade-in space-y-6">

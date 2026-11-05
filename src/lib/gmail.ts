@@ -28,7 +28,7 @@ function loadKey(): SAKey {
   );
 }
 
-function gmailClient() {
+export function gmailClient() {
   const key = loadKey();
   const subject = process.env.GMAIL_IMPERSONATE ?? "pointage@bleucitron.net";
   const auth = new google.auth.JWT({
