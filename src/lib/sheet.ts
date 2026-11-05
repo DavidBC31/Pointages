@@ -41,7 +41,14 @@ type Row = (string | number | boolean | Date | null)[];
 function tabRows(wb: XLSX.WorkBook, name: string): Row[] {
   const ws = wb.Sheets[name];
   if (!ws) throw new Error(`Onglet introuvable: ${name}`);
-  return XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null }) as Row[];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null }) as Row[];
+  // Colonne « LIEN SEANCE PIMS » (index 8) : hyperlien dont la cellule n'affiche
+  // que « SEANCE PIMS ». On remplace le texte par l'URL cible pour exposer l'id.
+  for (let i = 0; i < rows.length; i++) {
+    const cell = ws[XLSX.utils.encode_cell({ r: i, c: 8 })] as { l?: { Target?: string } } | undefined;
+    if (cell?.l?.Target) rows[i][8] = cell.l.Target;
+  }
+  return rows;
 }
 
 /** Snapshot local (data/relances.json) — repli quand Drive indisponible. */

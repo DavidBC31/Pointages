@@ -117,6 +117,19 @@ function Card({ r, done, onToggle }: { r: Reception; done: boolean; onToggle: ()
             dernier reçu : {frDate(r.dernierRecu)}
           </span>
         )}
+        {r.pimsPoint?.sales != null && (
+          <span className="text-[12px] text-apple-secondary">
+            PIMS actuel : <strong className="text-apple-text">{r.pimsPoint.sales}</strong>
+            {r.pimsPoint.date ? ` (${frDate(r.pimsPoint.date)})` : ""}
+            {valeur && Number(valeur) !== r.pimsPoint.sales && (
+              <span className="text-apple-blue">
+                {" · écart "}
+                {Number(valeur) - r.pimsPoint.sales > 0 ? "+" : ""}
+                {Number(valeur) - r.pimsPoint.sales}
+              </span>
+            )}
+          </span>
+        )}
       </div>
       {r.entry?.billet_tiers && (
         <p className="mt-2 text-[12px] text-apple-orange">

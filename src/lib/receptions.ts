@@ -1,6 +1,7 @@
 import { listInboxReplies, type InboxReply } from "./inbox";
 import { getDataset } from "./sheet";
 import { extractFigure, type Extraction } from "./extract";
+import { eventIdFromLink, getLatestTicketCount, type PimsPoint } from "./pims";
 import type { Entry } from "./types";
 
 /** Une réponse reçue, rapprochée d'une date suivie, avec le chiffre extrait. */
@@ -11,6 +12,7 @@ export interface Reception {
   matchedByEmail: boolean; // true = e-mail expéditeur reconnu (signal fort)
   extraction: Extraction;
   dernierRecu: string | null; // dernier point connu pour cette entrée (du Sheet)
+  pimsPoint: PimsPoint | null; // point global actuel dans PIMS (lecture)
 }
 
 /** Normalise pour comparaison : majuscules, sans accents. */
@@ -47,7 +49,7 @@ function scoreEntry(subject: string, body: string, fromEmail: string, e: Entry):
 export async function buildReceptions(): Promise<Reception[]> {
   const [replies, dataset] = await Promise.all([listInboxReplies(), getDataset()]);
 
-  return replies.map((reply) => {
+  const base: Reception[] = replies.map((reply) => {
     const subject = norm(reply.subject);
     const body = norm(reply.text);
     let best: Entry | null = null;
@@ -68,6 +70,16 @@ export async function buildReceptions(): Promise<Reception[]> {
       matchedByEmail: !!entry && emailsOf(entry.mail).includes(reply.fromEmail),
       extraction: extractFigure(reply.text),
       dernierRecu: entry?.dernier_recu ?? null,
+      pimsPoint: null,
     };
   });
+
+  // Point global PIMS (lecture) pour les entrées rapprochées ayant un lien séance.
+  await Promise.all(
+    base.map(async (r) => {
+      const id = eventIdFromLink(r.entry?.lien_pims);
+      if (id) r.pimsPoint = await getLatestTicketCount(id);
+    }),
+  );
+  return base;
 }
