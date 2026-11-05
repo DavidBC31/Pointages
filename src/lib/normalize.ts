@@ -64,6 +64,7 @@ function parseGrouped(rows: Row[], source: Entry["source"]): Entry[] {
       commentaire: txt(cell(r, 5)),
       relance_raw: txt(cell(r, 6)),
       dernier_recu: asIso(cell(r, 7)),
+      lien_pims: txt(cell(r, 8)),
       identifiant: txt(cell(r, 10)), mdp: txt(cell(r, 11)),
       action, cadence, raison_skip: raison, billet_tiers: false, spectacles: "",
     });
@@ -84,7 +85,7 @@ function parseBilletsTiers(rows: Row[]): Entry[] {
       ville: "", salle: "", date_concert: null,
       mail: txt(cell(r, 1)), commentaire: txt(cell(r, 3)),
       relance_raw: txt(cell(r, 4)), dernier_recu: asIso(cell(r, 5)),
-      identifiant: "", mdp: "",
+      lien_pims: "", identifiant: "", mdp: "",
       action, cadence, raison_skip: raison, billet_tiers: true,
       spectacles: txt(cell(r, 2)),
     });

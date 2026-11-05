@@ -13,6 +13,7 @@ export interface Entry {
   commentaire: string;
   relance_raw: string;
   dernier_recu: string | null;
+  lien_pims: string; // URL directe vers la séance dans PIMS (saisie assistée)
   identifiant: string;
   mdp: string;
   action: Action;

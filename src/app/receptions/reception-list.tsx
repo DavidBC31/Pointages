@@ -102,12 +102,27 @@ function Card({ r, done, onToggle }: { r: Reception; done: boolean; onToggle: ()
         <button onClick={copy} className="btn-cta" disabled={!valeur}>
           {copied ? "Copié ✓" : "Copier"}
         </button>
+        {r.entry?.lien_pims?.startsWith("http") && (
+          <a
+            href={r.entry.lien_pims}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="glass-pill rounded-full px-3 py-1.5 text-[13px] font-medium text-apple-blue"
+          >
+            Ouvrir dans PIMS ↗
+          </a>
+        )}
         {r.dernierRecu && (
           <span className="text-[12px] text-apple-secondary">
             dernier reçu : {frDate(r.dernierRecu)}
           </span>
         )}
       </div>
+      {r.entry?.billet_tiers && (
+        <p className="mt-2 text-[12px] text-apple-orange">
+          Billet tiers : sélectionner les places concernées dans Aparté avant report.
+        </p>
+      )}
 
       {r.extraction.candidates.length > 1 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
