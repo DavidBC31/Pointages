@@ -95,5 +95,5 @@ l'envoi affiche un message d'erreur propre.
 - **2 codes de rubrique sPAIEctacle** à confirmer par Azaïs (Mobilité douce et
   Transport en commun) — en attendant, ces lignes sortent avec le libellé mais
   sans code.
-- **Mise en ligne** : une fois déployé sur Vercel, le lien `/justificatifs` sera
-  l'URL à diffuser aux collaborateurs.
+- **Mise en ligne** : déployé sur le Mac Studio (`https://pointages.bleucitron.app`),
+  le lien `/justificatifs` est l'URL à diffuser aux collaborateurs.

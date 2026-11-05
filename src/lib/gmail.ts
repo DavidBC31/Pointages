@@ -13,7 +13,7 @@ interface SAKey {
 }
 
 function loadKey(): SAKey {
-  // Prod (Vercel) : clé JSON encodée en base64 dans GOOGLE_SA_KEY_B64
+  // Option : clé JSON encodée en base64 dans GOOGLE_SA_KEY_B64 (sinon fichier, cf. plus bas)
   const b64 = process.env.GOOGLE_SA_KEY_B64;
   if (b64) {
     return JSON.parse(Buffer.from(b64, "base64").toString("utf-8"));

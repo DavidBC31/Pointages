@@ -23,9 +23,8 @@ But : récupérer Nom / Prénom / Email du collaborateur à la connexion.
 
 **Authorized redirect URIs** — la route de callback, pour chaque environnement :
 ```
-http://localhost:3000/api/auth/callback          (dev local)
-https://<domaine-prod>/api/auth/callback          (production)
-https://<preview>.vercel.app/api/auth/callback    (si tu testes sur des preview Vercel)
+http://localhost:3004/api/auth/callback            (dev local)
+https://pointages.bleucitron.app/api/auth/callback (production, Mac Studio)
 ```
 
 **Authorized JavaScript origins** — l'origine seule (sans chemin) :
@@ -34,9 +33,7 @@ http://localhost:3000
 https://<domaine-prod>
 ```
 
-> Le chemin `/api/auth/callback` est imposé par le code (`src/app/api/auth/callback`). Le `redirect_uri` envoyé à Google est calculé dynamiquement comme `<origin>/api/auth/callback` ; il **doit** figurer à l'identique dans la liste ci-dessus, sinon Google renvoie `redirect_uri_mismatch`.
->
-> Les domaines de preview Vercel changent à chaque déploiement : le plus simple est d'ajouter un domaine de preview stable (alias) plutôt que chaque URL générée.
+> Le chemin `/api/auth/callback` est imposé par le code (`src/app/api/auth/callback`). Derrière Cloudflare Tunnel, le `redirect_uri` est calculé via `publicOrigin(req)` (en-têtes `x-forwarded-*`) ; il **doit** figurer à l'identique dans la liste ci-dessus, sinon Google renvoie `redirect_uri_mismatch`.
 
 ### Variables d'environnement
 ```
@@ -58,7 +55,7 @@ Sheets (BCD, suivi pointages), archiver sur Drive.
 1. Google Cloud Console → **IAM & Admin → Service Accounts → Create**.
 2. Une fois créé : onglet **Keys → Add key → JSON**. Télécharge le fichier.
    - En **dev** : place-le hors git (ex. `./.secrets/service-account.json`) et garde `GOOGLE_APPLICATION_CREDENTIALS` qui pointe dessus.
-   - En **prod (Vercel)** : encode-le en base64 et mets-le dans `GOOGLE_SA_KEY_B64`
+   - En **prod (Mac Studio)** : le même fichier `.secrets/service-account.json` (ou, en option, encodé base64 dans `GOOGLE_SA_KEY_B64`)
      ```
      base64 -i .secrets/service-account.json | pbcopy
      ```
@@ -95,7 +92,7 @@ Sheets (BCD, suivi pointages), archiver sur Drive.
 ```bash
 # Service-account (un des deux)
 GOOGLE_APPLICATION_CREDENTIALS=./.secrets/service-account.json   # dev
-GOOGLE_SA_KEY_B64=<base64 du JSON>                               # prod Vercel
+GOOGLE_SA_KEY_B64=<base64 du JSON>                               # option (sinon le fichier)
 
 # Boîtes impersonnées
 GMAIL_IMPERSONATE=pointage@bleucitron.net

@@ -7,8 +7,9 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 /**
- * Cron hebdo (Vercel) — crée les brouillons du jour dans pointage@.
- * Sécurisé par CRON_SECRET (Vercel l'envoie en `Authorization: Bearer ...`).
+ * Cron hebdo — crée les brouillons du jour dans pointage@.
+ * Déclenché par le cron système du Mac Studio (crontab) qui appelle cet endpoint
+ * avec `Authorization: Bearer <CRON_SECRET>`.
  * Rien n'est ENVOYÉ : l'équipe relit et envoie à la main.
  */
 export async function GET(req: NextRequest) {

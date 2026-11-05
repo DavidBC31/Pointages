@@ -122,7 +122,7 @@ dans le client OAuth (APIs & Services → Credentials) :
 
 C'est l'URL `/justificatifs` de ce domaine que tu diffuses aux collaborateurs.
 
-## 7. Planifier les traitements (remplace les crons Vercel)
+## 7. Planifier les traitements (cron système)
 
 Via `crontab -e`. Exemple — archiver les justificatifs chaque nuit à 2 h :
 ```cron

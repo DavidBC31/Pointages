@@ -28,3 +28,6 @@ data/absences_spaiectacle.tsv
 # artefacts générés
 next-env.d.ts
 *.tsbuildinfo
+
+# config de lancement locale (machine-specific, profils dev sans SSO)
+.claude/launch.json

@@ -1,8 +1,7 @@
 # Héberger l'app sur le Mac Studio (auto-hébergé)
 
-L'app est un **serveur Next.js standard** : tout ce qui tourne sur Vercel tourne
-sur une machine perso, à une exception près — **les crons Vercel** (à remplacer
-par un cron système, §7). Pas besoin de Docker.
+L'app est un **serveur Next.js standard** auto-hébergé. Seule particularité : le
+**cron hebdo** des relances, assuré par un cron système du Mac Studio (§7). Pas de Docker.
 
 Cible : Mac Studio M1 Max (« Mac Studio de Serveur »), exposition via
 **Cloudflare Tunnel**, process via **pm2**, admin via **Tailscale**.
@@ -52,14 +51,8 @@ npm run build       # build de prod (~10 s)
 
 ## 3. Secrets & configuration (`.env.local`)
 
-Le plus simple : **récupérer les valeurs déjà mises sur Vercel** (elles y sont
-toutes), depuis une machine connectée au bon compte Vercel :
-```bash
-vercel link            # lier au projet david-bc-s-projects/pointages
-vercel env pull .env.local --environment=production
-```
-…puis copier ce `.env.local` sur le Studio. Sinon, recréer le fichier à la main
-avec ces clés (valeurs identiques à la prod) :
+Copier le `.env.local` existant (depuis le MacBook, via Tailscale/AirDrop), ou
+le recréer à la main avec ces clés :
 
 ```bash
 # PIMS
@@ -70,8 +63,7 @@ PIMS_PASSWORD=...
 GOOGLE_APPLICATION_CREDENTIALS=./.secrets/service-account.json
 GMAIL_IMPERSONATE=pointage@bleucitron.net
 POINTAGE_SHEET_FILE_ID=1zsVu3Y4xitX3tULNpwqr5blaeUC6X5ll
-# SSO Google (même valeurs que la prod — AUTH_SECRET DOIT être identique
-# si tu veux que les sessions restent valides entre Vercel et le Studio)
+# SSO Google (AUTH_SECRET = clé HMAC des cookies de session, ≥ 32 chars)
 AUTH_GOOGLE_ID=...apps.googleusercontent.com
 AUTH_GOOGLE_SECRET=...
 AUTH_SECRET=...
@@ -87,7 +79,7 @@ BCD_SHEET_FILE_ID=1PXay_SqirJyT1P6IXS2iSVN5J9TMM_ffZdj2ZS6FcTI
 Déposer la clé du service account dans `~/apps/Pointages/.secrets/service-account.json`.
 
 > `.env.local` et `.secrets/` sont gitignorés → ils ne passent jamais par git ;
-> on les copie à la main (ou via `vercel env pull` + copie du JSON).
+> on les copie à la main.
 
 ## 4. Lancer en service permanent (pm2)
 
@@ -125,14 +117,17 @@ le client OAuth `380687599158-8puf…` (APIs & Services → Identifiants) :
 - **URI de redirection** : `https://pointages.bleucitron.net/api/auth/callback`
 - **Origine JS** : `https://pointages.bleucitron.net`
 
-## 7. Cron des relances (remplace le cron Vercel)
+## 7. Cron hebdo des relances
 
-`vercel.json` planifie `/api/cron/relances` chaque **lundi** — ce cron ne tourne
-QUE sur Vercel. En auto-hébergé, le recréer via `crontab -e` (heure locale Paris).
-La route est en **GET**, protégée par `CRON_SECRET` :
-```cron
-# Lundi 09:00 — génère les brouillons de relance dans pointage@
-0 9 * * 1  curl -s -H "Authorization: Bearer <CRON_SECRET>" https://pointages.bleucitron.net/api/cron/relances >> ~/apps/Pointages/cron.log 2>&1
+Un cron système du Studio appelle `/api/cron/relances` chaque **lundi** (heure
+locale Paris). La route est en **GET**, protégée par `CRON_SECRET`. Installation
+sans éditeur, idempotente (le secret est lu depuis `.env.local` au moment de l'appel,
+jamais écrit dans la crontab) :
+```bash
+cd ~/apps/Pointages
+LINE="0 9 * * 1 cd $PWD && curl -s -H \"Authorization: Bearer \$(grep -E '^CRON_SECRET=' .env.local | cut -d= -f2-)\" http://localhost:3004/api/cron/relances >> cron.log 2>&1"
+( crontab -l 2>/dev/null | grep -v '/api/cron/relances' ; echo "$LINE" ) | crontab -
+crontab -l | grep cron/relances
 ```
 
 ## 8. Mises à jour de l'app
@@ -145,15 +140,7 @@ npm run build
 pm2 restart pointages
 ```
 
-## 9. Migrer entièrement depuis Vercel (optionnel)
-
-- Éviter le **double cron** : si tu gardes Vercel actif, désactive l'un des deux
-  (sinon les brouillons du lundi sont créés en double). Pour couper côté Vercel :
-  retire le bloc `crons` de `vercel.json` puis redéploie, ou mets le projet en pause.
-- Garde le **même `AUTH_SECRET`** des deux côtés tant que les deux tournent.
-- Une fois le Studio validé, tu peux suspendre le projet Vercel.
-
-## 10. Checklist
+## 9. Checklist
 
 - [ ] `pm2 status` → `pointages` online
 - [ ] `curl -I http://localhost:3000/` → 307 (redirection SSO)
