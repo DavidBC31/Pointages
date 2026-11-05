@@ -70,7 +70,14 @@ function Card({ r, done, onToggle }: { r: Reception; done: boolean; onToggle: ()
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="truncate text-[14px] font-medium">{r.reply.from}</div>
-          <div className="truncate text-[13px] text-apple-secondary">{cible}</div>
+          <div className="truncate text-[13px] text-apple-secondary">
+            {cible}
+            {r.entry && !r.matchedByEmail && (
+              <span className="ml-1.5 rounded-full bg-apple-orange/15 px-2 py-0.5 text-[11px] text-apple-orange">
+                à confirmer
+              </span>
+            )}
+          </div>
           <div className="mt-0.5 text-[12px] text-apple-secondary">
             {frDate(r.reply.date)} · {r.reply.subject}
           </div>
